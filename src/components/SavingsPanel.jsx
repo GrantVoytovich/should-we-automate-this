@@ -1,53 +1,57 @@
 /**
- * SavingsPanel.jsx — the dark "savings" card. Shows total yearly dollars saved big,
- * weekly/yearly hours beneath, and the two editable assumptions (hourly cost, weeks/year).
- * Everything is clearly labeled as an estimate.
+ * SavingsPanel.jsx — the hero figure, presented like the headline stat in an analyst report:
+ * a large serif number on a quiet panel, three supporting figures beneath a rule, and the
+ * assumptions written as an editable sentence (the two numbers are inline inputs). Everything
+ * is clearly framed as an estimate.
  */
 import { fmtHours, fmtMoney } from '../lib/format.js';
 
 export default function SavingsPanel({ totals, assumptions, onChange }) {
   return (
     <section className="savings" aria-label="Estimated savings">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-        <h2>Estimated savings</h2>
-        <span className="estimate-tag">Estimate</span>
+      <div className="eyebrow">Estimated savings</div>
+
+      <div className="big">
+        {fmtMoney(totals.yearlyDollarsSaved)}<span className="per">/ year</span>
+      </div>
+      <div className="big-sub">if you make every recommended change</div>
+
+      <div className="savings-stats">
+        <div className="savings-stat">
+          <div className="n">{fmtHours(totals.weeklyHoursSaved)}</div>
+          <div className="u">hrs / week<br />saved</div>
+        </div>
+        <div className="savings-stat">
+          <div className="n">{fmtHours(totals.yearlyHoursSaved)}</div>
+          <div className="u">hrs / year<br />saved</div>
+        </div>
+        <div className="savings-stat">
+          <div className="n">{fmtHours(totals.weeklyHoursTotal)}</div>
+          <div className="u">hrs / week<br />spent today</div>
+        </div>
       </div>
 
-      <div className="big">{fmtMoney(totals.yearlyDollarsSaved)}</div>
-      <div className="big-sub">per year, if you make every recommended change</div>
-
-      <div className="savings-row">
-        <div className="savings-stat">
-          <div className="n">{fmtHours(totals.weeklyHoursSaved)} hrs</div>
-          <div className="l">saved per week</div>
-        </div>
-        <div className="savings-stat">
-          <div className="n">{fmtHours(totals.yearlyHoursSaved)} hrs</div>
-          <div className="l">saved per year</div>
-        </div>
-        <div className="savings-stat">
-          <div className="n">{fmtHours(totals.weeklyHoursTotal)} hrs</div>
-          <div className="l">this process costs now / week</div>
-        </div>
-      </div>
-
-      <div className="assumptions">
-        <div className="field">
-          <label htmlFor="hourlyCost">Hourly cost (fully loaded)</label>
+      <div className="assume">
+        <span>Based on</span>
+        <span>
+          $
           <input
-            id="hourlyCost" type="number" min="0" step="1"
+            className="assume-input" type="number" min="0" step="1"
+            aria-label="Hourly cost"
             value={assumptions.hourlyCost}
             onChange={(e) => onChange({ ...assumptions, hourlyCost: Number(e.target.value) })}
           />
-        </div>
-        <div className="field">
-          <label htmlFor="weeksPerYear">Working weeks / year</label>
-          <input
-            id="weeksPerYear" type="number" min="1" max="52" step="1"
-            value={assumptions.weeksPerYear}
-            onChange={(e) => onChange({ ...assumptions, weeksPerYear: Number(e.target.value) })}
-          />
-        </div>
+          / hour
+        </span>
+        <span>over</span>
+        <input
+          className="assume-input" type="number" min="1" max="52" step="1"
+          aria-label="Working weeks per year"
+          value={assumptions.weeksPerYear}
+          onChange={(e) => onChange({ ...assumptions, weeksPerYear: Number(e.target.value) })}
+        />
+        <span>working weeks.</span>
+        <span className="tag">Estimate</span>
       </div>
     </section>
   );

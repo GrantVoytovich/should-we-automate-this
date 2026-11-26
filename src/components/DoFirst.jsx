@@ -3,7 +3,7 @@
  * computed in scoring.js (analyzeProcess -> doFirst); this component only presents it.
  */
 import { RECOMMENDATION_META } from '../scoring.js';
-import { fmtHoursPerYear } from '../lib/format.js';
+import { fmtHours } from '../lib/format.js';
 
 export default function DoFirst({ doFirst }) {
   if (doFirst.length === 0) {
@@ -15,12 +15,15 @@ export default function DoFirst({ doFirst }) {
         const meta = RECOMMENDATION_META[s.recommendation];
         return (
           <div className="dofirst-item" key={s.id}>
-            <div className="rank">{i + 1}</div>
+            <div className="rank">{String(i + 1).padStart(2, '0')}</div>
             <div className="dofirst-main">
               <div className="dofirst-title">{s.description || 'Untitled step'}</div>
               <div className="dofirst-meta">
-                <span style={{ color: meta.color, fontWeight: 600 }}>{meta.label}</span>
-                {' · '}{fmtHoursPerYear(s.impact.yearlyHoursSaved)} · {s.effort} effort
+                <span className="dofirst-verdict" style={{ color: meta.color }}>{meta.label}</span>
+                <span className="sep" aria-hidden="true" />
+                <span>{fmtHours(s.impact.yearlyHoursSaved)} hrs/yr</span>
+                <span className="sep" aria-hidden="true" />
+                <span>{s.effort} effort</span>
               </div>
             </div>
           </div>

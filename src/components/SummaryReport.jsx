@@ -1,12 +1,12 @@
 /**
- * SummaryReport.jsx — the one-page view. It's designed to be printed to PDF (the browser's
- * "Save as PDF") or copied as plain text. The @media print rules in index.css hide the
- * interactive chrome so only this report prints.
+ * SummaryReport.jsx — the one-page view, styled like the summary sheet of an analyst report.
+ * Designed to be printed to PDF (the browser's "Save as PDF") or copied as plain text. The
+ * @media print rules in index.css hide the interactive chrome so only this report prints.
  */
 import { RECOMMENDATION_META } from '../scoring.js';
 import { fmtHours, fmtMoney } from '../lib/format.js';
 
-// Build a plain-text version for the "Copy as text" button.
+// Plain-text version for the "Copy as text" button.
 export function buildReportText(processName, analyzed, totals, assumptions) {
   const lines = [];
   lines.push(`SHOULD WE AUTOMATE THIS? — ${processName || 'Untitled process'}`);
@@ -28,48 +28,38 @@ export function buildReportText(processName, analyzed, totals, assumptions) {
 export default function SummaryReport({ processName, analyzed, totals, assumptions }) {
   return (
     <div className="report">
-      <div className="report-section">
-        <h2 style={{ fontSize: '1.3rem' }}>{processName || 'Untitled process'}</h2>
-        <p className="hint">Automation assessment · all time and money figures are estimates.</p>
+      <div className="eyebrow">Automation assessment</div>
+      <h2 className="report-title">{processName || 'Untitled process'}</h2>
+      <p className="report-sub">All time and money figures are estimates · ${assumptions.hourlyCost}/hr over {assumptions.weeksPerYear} working weeks.</p>
+
+      <div className="report-totals">
+        <div className="report-total"><div className="n">{fmtMoney(totals.yearlyDollarsSaved)}</div><div className="l">estimated / year</div></div>
+        <div className="report-total"><div className="n">{fmtHours(totals.yearlyHoursSaved)} hrs</div><div className="l">saved / year</div></div>
+        <div className="report-total"><div className="n">{fmtHours(totals.weeklyHoursSaved)} hrs</div><div className="l">saved / week</div></div>
       </div>
 
-      <div className="report-section">
-        <table>
-          <tbody>
-            <tr>
-              <td><strong>{fmtMoney(totals.yearlyDollarsSaved)}</strong><div className="dofirst-meta">estimated / year</div></td>
-              <td><strong>{fmtHours(totals.yearlyHoursSaved)} hrs</strong><div className="dofirst-meta">saved / year</div></td>
-              <td><strong>{fmtHours(totals.weeklyHoursSaved)} hrs</strong><div className="dofirst-meta">saved / week</div></td>
-              <td><strong>${assumptions.hourlyCost}/hr · {assumptions.weeksPerYear} wks</strong><div className="dofirst-meta">assumptions</div></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div className="report-section">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Step</th><th>Verdict</th><th>Why</th><th>Effort</th><th>Hrs/yr</th>
-            </tr>
-          </thead>
-          <tbody>
-            {analyzed.map((s, i) => {
-              const meta = RECOMMENDATION_META[s.recommendation];
-              return (
-                <tr key={s.id}>
-                  <td>{i + 1}</td>
-                  <td>{s.description || 'Untitled step'}</td>
-                  <td><span className="tag" style={{ background: meta.color }}>{meta.label}</span></td>
-                  <td>{s.reasons.join(' ')}</td>
-                  <td>{s.effort}</td>
-                  <td>{s.impact.yearlyHoursSaved > 0 ? fmtHours(s.impact.yearlyHoursSaved) : '—'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style={{ width: '24px' }}>#</th><th>Step</th><th>Verdict</th><th>Why</th><th>Effort</th><th>Hrs/yr</th>
+          </tr>
+        </thead>
+        <tbody>
+          {analyzed.map((s, i) => {
+            const meta = RECOMMENDATION_META[s.recommendation];
+            return (
+              <tr key={s.id}>
+                <td>{i + 1}</td>
+                <td>{s.description || 'Untitled step'}</td>
+                <td><span className="vcell" style={{ color: meta.color }}><span className="dot" style={{ background: meta.color }} />{meta.label}</span></td>
+                <td style={{ color: 'var(--ink-70)' }}>{s.reasons.join(' ')}</td>
+                <td>{s.effort}</td>
+                <td>{s.impact.yearlyHoursSaved > 0 ? fmtHours(s.impact.yearlyHoursSaved) : '—'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

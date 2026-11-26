@@ -41,37 +41,37 @@ export const RECOMMENDATIONS = {
 export const RECOMMENDATION_META = {
   [RECOMMENDATIONS.ELIMINATE]: {
     label: 'Eliminate',
-    color: '#64748B', // slate grey — intentionally muted: "stop doing this"
+    color: '#6E6A62', // warm stone — intentionally muted: "stop doing this"
     short: 'This step may not need to exist.',
     potential: 1.0, // if removed, 100% of the step's time disappears
   },
   [RECOMMENDATIONS.SIMPLE_AUTOMATION]: {
     label: 'Simple automation',
-    color: '#2563EB', // blue — the "clean, deterministic" verdict
+    color: '#345E8C', // slate blue — the "clean, deterministic" verdict
     short: 'A rule, formula, form, or a tool like Zapier / Power Automate can do this.',
     potential: 0.8, // most of the hands-on time goes away; some oversight remains
   },
   [RECOMMENDATIONS.BUILD_APP]: {
     label: 'Build a simple app',
-    color: '#7C3AED', // violet
+    color: '#5B4A86', // muted indigo/plum
     short: 'The real problem is that there is no system — a small shared tool would fix it.',
     potential: 0.7,
   },
   [RECOMMENDATIONS.AI_ASSIST]: {
     label: 'AI assist',
-    color: '#D97706', // amber — the one warm hue; AI drafts, a person reviews
+    color: '#9A6B2E', // muted ochre — the one warm hue; AI drafts, a person reviews
     short: 'AI produces a draft; a person checks and finishes it.',
     potential: 0.4, // review time is real, so only part of the time is saved
   },
   [RECOMMENDATIONS.AI_AGENT]: {
     label: 'AI agent',
-    color: '#DB2777', // rose/magenta
+    color: '#9E4A57', // muted rose
     short: 'AI handles the step end-to-end; a person spot-checks the output.',
     potential: 0.75,
   },
   [RECOMMENDATIONS.KEEP_HUMAN]: {
     label: 'Keep human',
-    color: '#059669', // green — a deliberately "good as-is" signal
+    color: '#2F6B53', // muted evergreen — a deliberately "good as-is" signal
     short: 'Judgment, relationships, or risk make this a job for a person.',
     potential: 0.0, // no time saved — and that is the correct answer sometimes
   },

@@ -1,10 +1,10 @@
 /**
- * App.jsx — top-level component. It owns the state (process name, steps, assumptions),
- * runs the engine on every change (analyzeProcess), persists to localStorage, and lays out
- * the two columns: the process builder on the left, the analysis on the right.
+ * App.jsx — top-level component. Owns the state (process name, steps, assumptions), runs the
+ * engine on every change (analyzeProcess), persists to localStorage, and lays out the two
+ * columns: the process ledger on the left, the analysis on the right.
  *
- * Note the clean separation: ALL decision logic lives in scoring.js. This file is only
- * state + layout, so you can reason about the two concerns independently.
+ * All decision logic lives in scoring.js. This file is only state + layout, so the two
+ * concerns can be reasoned about independently.
  */
 import { useState, useEffect, useMemo } from 'react';
 import { analyzeProcess, makeEmptyStep } from './scoring.js';
@@ -16,38 +16,33 @@ import ImpactEffortChart from './components/ImpactEffortChart.jsx';
 import DoFirst from './components/DoFirst.jsx';
 import Legend from './components/Legend.jsx';
 import SummaryReport, { buildReportText } from './components/SummaryReport.jsx';
+import { PlusIcon, ReportIcon, ArrowRightIcon, CopyIcon, PrintIcon } from './components/icons.jsx';
 
 const DEFAULT_ASSUMPTIONS = { hourlyCost: 40, weeksPerYear: 50 };
-
-// Generate a reasonably-unique id for a new step.
 const newId = () => `step-${Date.now()}-${Math.floor(Math.random() * 1e4)}`;
 
 export default function App() {
-  // ---- State, hydrated from localStorage on first render (so a refresh keeps your work).
   const saved = loadState();
   const [processName, setProcessName] = useState(saved?.processName ?? 'My process');
   const [steps, setSteps] = useState(saved?.steps ?? []);
   const [assumptions, setAssumptions] = useState(saved?.assumptions ?? DEFAULT_ASSUMPTIONS);
-  const [openStepId, setOpenStepId] = useState(null); // which step's editor is expanded
+  const [openStepId, setOpenStepId] = useState(null);
   const [showReport, setShowReport] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ---- Persist on every meaningful change.
   useEffect(() => {
     saveState({ processName, steps, assumptions });
   }, [processName, steps, assumptions]);
 
-  // ---- Run the engine. useMemo so we only recompute when inputs change.
   const { analyzed, totals, doFirst } = useMemo(
     () => analyzeProcess(steps, assumptions),
     [steps, assumptions]
   );
 
-  // ---- Step operations
   function addStep() {
     const s = makeEmptyStep(newId());
     setSteps((prev) => [...prev, s]);
-    setOpenStepId(s.id); // open the editor for the new step immediately
+    setOpenStepId(s.id);
   }
   function updateStep(updated) {
     setSteps((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
@@ -56,7 +51,6 @@ export default function App() {
     setSteps((prev) => prev.filter((s) => s.id !== id));
   }
   function loadExample(example) {
-    // Deep-clone so editing the loaded copy never mutates the shared example data.
     setProcessName(example.name);
     setSteps(example.steps.map((s) => ({ ...s, id: newId() })));
     setOpenStepId(null);
@@ -76,33 +70,35 @@ export default function App() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
-      // Clipboard can be blocked; fall back to a prompt the user can copy from.
       window.prompt('Copy the report text below:', text);
     }
   }
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div>
-          <h1 className="app-title">Should We <span className="accent">Automate</span> This?</h1>
+      {/* ---------------------------------------------------------- Masthead */}
+      <header className="masthead">
+        <div className="masthead-left">
+          <div className="eyebrow">Process automation assessment</div>
+          <h1 className="app-title">Should we <em>automate</em> this?</h1>
           <p className="app-subtitle">
-            Describe a process step by step. The tool tells you which steps to fix and how,
-            what to leave to people, and roughly how much time it would save — and always shows <em>why</em>.
+            Describe a process step by step. You'll get a clear verdict on each step — what to fix and how,
+            what to leave to people, and roughly how much time it would save — with the reasoning shown for every call.
           </p>
         </div>
-        <div className="toolbar no-print">
+        <div className="no-print">
           <button className="btn" onClick={() => setShowReport((v) => !v)}>
-            {showReport ? '← Back to builder' : 'Summary report'}
+            {showReport ? <><ArrowRightIcon size={16} style={{ transform: 'rotate(180deg)' }} /> Back to builder</> : <><ReportIcon size={16} /> Summary report</>}
           </button>
         </div>
       </header>
+      <hr className="masthead-rule" />
 
-      {/* Examples row */}
-      <div className="toolbar no-print" style={{ marginTop: 8 }}>
-        <span className="hint" style={{ marginRight: 2 }}>Load an example:</span>
+      {/* Examples */}
+      <div className="examples no-print">
+        <span className="eyebrow">Try an example</span>
         {EXAMPLES.map((ex) => (
-          <button key={ex.key} className="btn btn-sm" onClick={() => loadExample(ex)} title={ex.blurb}>
+          <button key={ex.key} className="chip" onClick={() => loadExample(ex)} title={ex.blurb}>
             {ex.name}
           </button>
         ))}
@@ -110,10 +106,13 @@ export default function App() {
 
       {showReport ? (
         /* -------------------------------------------------- Summary report view */
-        <div className="card" style={{ marginTop: 20 }}>
-          <div className="toolbar no-print" style={{ justifyContent: 'flex-end', marginBottom: 12 }}>
-            <button className="btn btn-sm" onClick={copyReport}>{copied ? 'Copied!' : 'Copy as text'}</button>
-            <button className="btn btn-sm" onClick={() => window.print()}>Print / Save as PDF</button>
+        <div>
+          <div className="report-bar no-print">
+            <span className="eyebrow">One-page summary</span>
+            <span style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-sm" onClick={copyReport}><CopyIcon size={15} />{copied ? 'Copied' : 'Copy as text'}</button>
+              <button className="btn btn-sm" onClick={() => window.print()}><PrintIcon size={15} />Print / Save as PDF</button>
+            </span>
           </div>
           {steps.length === 0 ? (
             <p className="empty-state">Add some steps first, then come back for the summary.</p>
@@ -124,9 +123,9 @@ export default function App() {
       ) : (
         /* -------------------------------------------------- Builder + analysis */
         <div className="grid">
-          {/* LEFT: process builder */}
+          {/* LEFT: the process ledger */}
           <div>
-            <div className="card">
+            <div className="process-head">
               <input
                 className="process-name-input"
                 value={processName}
@@ -134,60 +133,61 @@ export default function App() {
                 onChange={(e) => setProcessName(e.target.value)}
                 placeholder="Name this process"
               />
-              <p className="hint">Add each step of the process, then read the verdict and savings on the right.</p>
+            </div>
+            <p className="process-sub">Add each step, then read its verdict and the savings on the right.</p>
 
-              {steps.length === 0 ? (
-                <div className="empty-state">
-                  No steps yet. Click <strong>Add step</strong> below, or load an example above.
-                </div>
-              ) : (
-                <div className="steps">
-                  {analyzed.map((step, i) => (
-                    <StepCard
-                      key={step.id}
-                      step={step}
-                      index={i}
-                      isOpen={openStepId === step.id}
-                      onToggle={() => setOpenStepId((cur) => (cur === step.id ? null : step.id))}
-                      onChange={updateStep}
-                      onRemove={() => removeStep(step.id)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              <div className="toolbar no-print" style={{ marginTop: 16 }}>
-                <button className="btn btn-primary" onClick={addStep}>+ Add step</button>
-                {steps.length > 0 && <button className="btn btn-ghost btn-sm" onClick={clearAll}>Clear all</button>}
+            {steps.length === 0 ? (
+              <div className="empty-state">
+                No steps yet. Add your first step, or load an example above.
               </div>
+            ) : (
+              <div className="steps">
+                {analyzed.map((step, i) => (
+                  <StepCard
+                    key={step.id}
+                    step={step}
+                    index={i}
+                    isOpen={openStepId === step.id}
+                    onToggle={() => setOpenStepId((cur) => (cur === step.id ? null : step.id))}
+                    onChange={updateStep}
+                    onRemove={() => removeStep(step.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="add-row no-print">
+              <button className="btn btn-primary" onClick={addStep}><PlusIcon size={16} /> Add step</button>
+              {steps.length > 0 && <button className="btn btn-ghost btn-sm" onClick={clearAll}>Clear all</button>}
             </div>
           </div>
 
-          {/* RIGHT: analysis */}
+          {/* RIGHT: the analysis */}
           <div className="right-col">
             <SavingsPanel totals={totals} assumptions={assumptions} onChange={setAssumptions} />
 
-            <div className="card">
-              <h2>Impact vs effort</h2>
-              <p className="hint">Quick wins are high up and to the left.</p>
+            <div className="section">
+              <div className="section-head"><h2 className="section-title">Impact vs effort</h2></div>
+              <p className="section-note">Quick wins sit high and to the left.</p>
               <ImpactEffortChart steps={analyzed} />
             </div>
 
-            <div className="card">
-              <h2>Do these first</h2>
-              <p className="hint">Ranked by the best time saved for the least effort.</p>
+            <div className="section">
+              <div className="section-head"><h2 className="section-title">Do these first</h2></div>
+              <p className="section-note">Ranked by the best time saved for the least effort.</p>
               <DoFirst doFirst={doFirst} />
             </div>
 
-            <div className="card">
-              <h2>How to read the verdicts</h2>
+            <div className="section">
+              <div className="section-head"><h2 className="section-title">The six verdicts</h2></div>
+              <p className="section-note">What each recommendation means, and how savings are estimated.</p>
               <Legend />
             </div>
           </div>
         </div>
       )}
 
-      <footer className="hint no-print" style={{ marginTop: 40, textAlign: 'center' }}>
+      <footer className="no-print" style={{ marginTop: 56, paddingTop: 20, borderTop: '1px solid var(--rule)', textAlign: 'center', color: 'var(--ink-45)', fontSize: '0.82rem' }}>
         Runs entirely in your browser · your work is saved locally · all figures are estimates you can change.
       </footer>
     </div>

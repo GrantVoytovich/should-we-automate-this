@@ -117,8 +117,8 @@ This is a static Vite site, so hosting is free:
 ## How it's built
 
 - **Vite + React** — a standard, fast toolchain; the build is a plain static site.
-- **No UI or chart libraries** — the impact-vs-effort chart is hand-drawn SVG, so there are no
-  dependencies to explain and the math is fully visible.
+- **No UI or chart libraries** — the impact-vs-effort chart is hand-drawn SVG and the icons are a
+  small hand-made set, so there are no dependencies to explain and the math is fully visible.
 - **Clean separation of concerns** — `src/scoring.js` is pure logic (no React), the components
   are presentation only. You can reason about the decision engine and the UI independently.
 
@@ -128,9 +128,24 @@ src/
   scoring.test.js   ← one unit test per rule
   examples.js       ← the three sample processes
   App.jsx           ← state + layout, no decision logic
-  components/        ← StepCard, SavingsPanel, ImpactEffortChart, DoFirst, Legend, SummaryReport
+  components/        ← StepCard, SavingsPanel, ImpactEffortChart, DoFirst, Legend, SummaryReport, icons
   lib/               ← localStorage + formatting helpers
 ```
+
+### Design
+
+The look is deliberately an **editorial analyst report**, not a generic SaaS dashboard:
+
+- **Ink on warm paper, with color reserved for the data.** The interface chrome is monochrome;
+  hue appears only in the six verdicts, where it carries meaning. That restraint is the point.
+- **A real type pairing** — Newsreader (an editorial serif) for the masthead and the hero figure,
+  Inter for UI and data, with tabular numerals so figures align.
+- **Hairline rules and rhythm instead of a drop shadow on every box**, a hand-made line-icon set,
+  a segmented effort meter, muted and harmonized verdict colors shown as quiet tinted chips, and
+  assumptions written as an editable sentence.
+
+All of it is driven by CSS custom properties in [`src/index.css`](src/index.css) (`:root`) plus the
+six verdict colors in [`src/scoring.js`](src/scoring.js), so re-theming is a small, contained change.
 
 ## What I'd add next (v2)
 

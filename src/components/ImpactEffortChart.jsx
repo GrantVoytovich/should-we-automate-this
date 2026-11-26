@@ -1,80 +1,78 @@
 /**
- * ImpactEffortChart.jsx — a hand-drawn SVG scatter plot of impact (hours saved per year)
- * vs effort (low/medium/high). No chart library: it's a small amount of SVG so there are
- * no dependencies to explain and the math is fully visible. Quick wins sit in the
- * top-left (high impact, low effort).
+ * ImpactEffortChart.jsx — a hand-drawn SVG scatter of impact (hours saved per year) vs effort.
+ * No chart library: it's a small amount of SVG, so there are no dependencies and the math is
+ * visible. Quick wins sit in the top-left (high impact, low effort); a faint guide marks that
+ * quadrant. Dots use the muted verdict colors so the chart reads as part of the same system.
  */
 import { RECOMMENDATION_META, effortToX } from '../scoring.js';
 import { fmtHours } from '../lib/format.js';
 
 export default function ImpactEffortChart({ steps }) {
-  // Only plot steps that actually save time (keep-human/zero-impact steps have no point).
   const points = steps.filter((s) => s.impact.yearlyHoursSaved > 0);
 
-  // SVG coordinate space. We draw in a fixed viewBox and let CSS scale it responsively.
   const W = 440, H = 300;
-  const pad = { left: 46, right: 18, top: 18, bottom: 42 };
+  const pad = { left: 44, right: 16, top: 22, bottom: 42 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
 
   const maxHours = Math.max(10, ...points.map((p) => p.impact.yearlyHoursSaved));
 
-  // x: effort 1..3 mapped across the plot width (with a little inset so dots aren't on the axis).
   const xFor = (effort) => pad.left + ((effortToX(effort) - 1) / 2) * (plotW - 30) + 15;
-  // y: hours saved, inverted (more hours = higher up).
   const yFor = (hours) => pad.top + plotH - (hours / maxHours) * plotH;
 
   if (points.length === 0) {
     return <p className="empty-state">Add steps that can be improved to see the impact-vs-effort map.</p>;
   }
 
+  const midX = pad.left + plotW / 2;
+  const midY = pad.top + plotH / 2;
+
   return (
     <div className="chart-wrap">
       <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} role="img"
         aria-label="Scatter plot of yearly hours saved versus effort for each step. Quick wins appear in the upper-left.">
+        {/* Faint quick-wins quadrant (upper-left) */}
+        <rect x={pad.left} y={pad.top} width={plotW / 2} height={plotH / 2} fill="#2f6b53" opacity="0.05" />
+        <line x1={midX} y1={pad.top} x2={midX} y2={pad.top + plotH} stroke="#e6e3db" strokeDasharray="3 4" />
+        <line x1={pad.left} y1={midY} x2={pad.left + plotW} y2={midY} stroke="#e6e3db" strokeDasharray="3 4" />
+
         {/* Axes */}
-        <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + plotH} stroke="#d4dae6" />
-        <line x1={pad.left} y1={pad.top + plotH} x2={pad.left + plotW} y2={pad.top + plotH} stroke="#d4dae6" />
+        <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + plotH} stroke="#d8d4c9" />
+        <line x1={pad.left} y1={pad.top + plotH} x2={pad.left + plotW} y2={pad.top + plotH} stroke="#d8d4c9" />
 
         {/* X labels (effort) */}
         {['low', 'medium', 'high'].map((e) => (
-          <text key={e} x={xFor(e)} y={pad.top + plotH + 20} textAnchor="middle" fontSize="11" fill="#8a93a6">
+          <text key={e} x={xFor(e)} y={pad.top + plotH + 20} textAnchor="middle" fontSize="10.5" fill="#8c897f" fontFamily="Inter, sans-serif">
             {e[0].toUpperCase() + e.slice(1)}
           </text>
         ))}
-        <text x={pad.left + plotW / 2} y={H - 6} textAnchor="middle" fontSize="11" fill="#475069" fontWeight="600">
-          Effort to build →
+        <text x={pad.left + plotW / 2} y={H - 6} textAnchor="middle" fontSize="10" fill="#55534c" fontFamily="Inter, sans-serif" letterSpacing="0.08em">
+          EFFORT TO BUILD →
+        </text>
+        <text transform={`translate(13 ${pad.top + plotH / 2}) rotate(-90)`} textAnchor="middle" fontSize="10" fill="#55534c" fontFamily="Inter, sans-serif" letterSpacing="0.08em">
+          HOURS SAVED / YEAR →
+        </text>
+        <text x={pad.left - 6} y={yFor(maxHours) + 4} textAnchor="end" fontSize="9.5" fill="#a9a59b" fontFamily="Inter, sans-serif">{fmtHours(maxHours)}</text>
+
+        {/* Quick-wins label */}
+        <text x={pad.left + 8} y={pad.top + 13} fontSize="9.5" fill="#2f6b53" fontFamily="Inter, sans-serif" fontWeight="600" letterSpacing="0.06em">
+          QUICK WINS
         </text>
 
-        {/* Y axis caption */}
-        <text transform={`translate(14 ${pad.top + plotH / 2}) rotate(-90)`} textAnchor="middle" fontSize="11" fill="#475069" fontWeight="600">
-          Hours saved / year →
-        </text>
-        <text x={pad.left - 6} y={yFor(maxHours) + 4} textAnchor="end" fontSize="10" fill="#9aa3b5">{fmtHours(maxHours)}</text>
-        <text x={pad.left - 6} y={yFor(0)} textAnchor="end" fontSize="10" fill="#9aa3b5">0</text>
-
-        {/* "Quick wins" hint in the upper-left quadrant */}
-        <text x={xFor('low')} y={pad.top + 12} textAnchor="middle" fontSize="10" fill="#059669" fontWeight="700">
-          ★ quick wins
-        </text>
-
-        {/* One dot per step, colored by its recommendation. Dots are jittered slightly on x
-            when they share an effort column so they don't overlap perfectly. */}
+        {/* One dot per step, colored by its recommendation, lightly jittered when sharing a column. */}
         {points.map((p, i) => {
           const meta = RECOMMENDATION_META[p.recommendation];
-          const jitter = ((i % 3) - 1) * 9; // -9, 0, +9
+          const jitter = ((i % 3) - 1) * 9;
           const cx = xFor(p.effort) + jitter;
           const cy = yFor(p.impact.yearlyHoursSaved);
           return (
-            <g key={p.id}>
-              <circle cx={cx} cy={cy} r="8" fill={meta.color} stroke="#fff" strokeWidth="1.5">
-                <title>{`${p.description || 'Untitled step'} — ${meta.label}: ${fmtHours(p.impact.yearlyHoursSaved)} hrs/yr, ${p.effort} effort`}</title>
-              </circle>
-            </g>
+            <circle key={p.id} cx={cx} cy={cy} r="6" fill={meta.color} stroke="#faf9f6" strokeWidth="1.5">
+              <title>{`${p.description || 'Untitled step'} — ${meta.label}: ${fmtHours(p.impact.yearlyHoursSaved)} hrs/yr, ${p.effort} effort`}</title>
+            </circle>
           );
         })}
       </svg>
-      <p className="chart-legend-line">Each dot is a step, colored by its recommendation. Up = more time saved; left = easier to build.</p>
+      <p className="chart-legend-line">Each dot is a step. Up = more time saved; left = easier to build.</p>
     </div>
   );
 }
