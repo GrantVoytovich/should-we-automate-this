@@ -41,13 +41,13 @@ export const RECOMMENDATIONS = {
 export const RECOMMENDATION_META = {
   [RECOMMENDATIONS.ELIMINATE]: {
     label: 'Eliminate',
-    color: '#6B7280', // slate grey — intentionally muted: "stop doing this"
+    color: '#64748B', // slate grey — intentionally muted: "stop doing this"
     short: 'This step may not need to exist.',
     potential: 1.0, // if removed, 100% of the step's time disappears
   },
   [RECOMMENDATIONS.SIMPLE_AUTOMATION]: {
     label: 'Simple automation',
-    color: '#0EA5E9', // sky blue
+    color: '#2563EB', // blue — the "clean, deterministic" verdict
     short: 'A rule, formula, form, or a tool like Zapier / Power Automate can do this.',
     potential: 0.8, // most of the hands-on time goes away; some oversight remains
   },
@@ -59,13 +59,13 @@ export const RECOMMENDATION_META = {
   },
   [RECOMMENDATIONS.AI_ASSIST]: {
     label: 'AI assist',
-    color: '#F5B700', // amber (the product accent) — AI drafts, a person reviews
+    color: '#D97706', // amber — the one warm hue; AI drafts, a person reviews
     short: 'AI produces a draft; a person checks and finishes it.',
     potential: 0.4, // review time is real, so only part of the time is saved
   },
   [RECOMMENDATIONS.AI_AGENT]: {
     label: 'AI agent',
-    color: '#EC4899', // pink/magenta
+    color: '#DB2777', // rose/magenta
     short: 'AI handles the step end-to-end; a person spot-checks the output.',
     potential: 0.75,
   },

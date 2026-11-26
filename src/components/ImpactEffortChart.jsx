@@ -33,25 +33,25 @@ export default function ImpactEffortChart({ steps }) {
       <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} role="img"
         aria-label="Scatter plot of yearly hours saved versus effort for each step. Quick wins appear in the upper-left.">
         {/* Axes */}
-        <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + plotH} stroke="#d8d4ca" />
-        <line x1={pad.left} y1={pad.top + plotH} x2={pad.left + plotW} y2={pad.top + plotH} stroke="#d8d4ca" />
+        <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + plotH} stroke="#d4dae6" />
+        <line x1={pad.left} y1={pad.top + plotH} x2={pad.left + plotW} y2={pad.top + plotH} stroke="#d4dae6" />
 
         {/* X labels (effort) */}
         {['low', 'medium', 'high'].map((e) => (
-          <text key={e} x={xFor(e)} y={pad.top + plotH + 20} textAnchor="middle" fontSize="11" fill="#7a7a74">
+          <text key={e} x={xFor(e)} y={pad.top + plotH + 20} textAnchor="middle" fontSize="11" fill="#8a93a6">
             {e[0].toUpperCase() + e.slice(1)}
           </text>
         ))}
-        <text x={pad.left + plotW / 2} y={H - 6} textAnchor="middle" fontSize="11" fill="#4b4b47" fontWeight="600">
+        <text x={pad.left + plotW / 2} y={H - 6} textAnchor="middle" fontSize="11" fill="#475069" fontWeight="600">
           Effort to build →
         </text>
 
         {/* Y axis caption */}
-        <text transform={`translate(14 ${pad.top + plotH / 2}) rotate(-90)`} textAnchor="middle" fontSize="11" fill="#4b4b47" fontWeight="600">
+        <text transform={`translate(14 ${pad.top + plotH / 2}) rotate(-90)`} textAnchor="middle" fontSize="11" fill="#475069" fontWeight="600">
           Hours saved / year →
         </text>
-        <text x={pad.left - 6} y={yFor(maxHours) + 4} textAnchor="end" fontSize="10" fill="#9a968d">{fmtHours(maxHours)}</text>
-        <text x={pad.left - 6} y={yFor(0)} textAnchor="end" fontSize="10" fill="#9a968d">0</text>
+        <text x={pad.left - 6} y={yFor(maxHours) + 4} textAnchor="end" fontSize="10" fill="#9aa3b5">{fmtHours(maxHours)}</text>
+        <text x={pad.left - 6} y={yFor(0)} textAnchor="end" fontSize="10" fill="#9aa3b5">0</text>
 
         {/* "Quick wins" hint in the upper-left quadrant */}
         <text x={xFor('low')} y={pad.top + 12} textAnchor="middle" fontSize="10" fill="#059669" fontWeight="700">
