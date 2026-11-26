@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local env files (we don't use any, but ignore by default)
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel

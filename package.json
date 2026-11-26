@@ -1,0 +1,23 @@
+{
+  "name": "should-we-automate-this",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A transparent, rules-based tool that analyzes a work process step by step and recommends what to automate, what to keep human, and how much time it could save.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
